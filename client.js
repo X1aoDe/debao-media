@@ -37,6 +37,7 @@ window.__ModuleLoader__.load({
         'tab.search': '搜索 & 热榜',
         'tab.insp': '灵感库',
         'tab.worksLearn': '拆解学习库',
+        'tab.study': '学习库',
         'tab.worksOrig': '原创库',
         'tab.accounts': '我的账号',
         'tab.bloggers': '找博主',
@@ -177,6 +178,7 @@ window.__ModuleLoader__.load({
         'tab.search': 'Search & trending',
         'tab.insp': 'Inspiration',
         'tab.worksLearn': 'Decode library',
+        'tab.study': 'Study library',
         'tab.worksOrig': 'Original library',
         'tab.accounts': 'My accounts',
         'tab.bloggers': 'Find creators',
@@ -808,13 +810,13 @@ window.__ModuleLoader__.load({
     }
 
     /* 两大板块：拆解与学习（学别人） / 原创（做自己）。别再加散页签，新东西往这两块里塞。 */
-    const TAB_KEYS = ['board', 'capture', 'deconstruct', 'imitate', 'search', 'bloggers', 'learn',
-      'original', 'topics', 'idea', 'insp', 'account', 'accounts', 'worksLearn', 'worksOrig', 'drafts', 'settings']
+    const TAB_KEYS = ['board', 'capture', 'deconstruct', 'imitate', 'search', 'bloggers', 'learn', 'study',
+      'original', 'topics', 'idea', 'insp', 'account', 'accounts', 'worksOrig', 'drafts', 'settings']
   const TAB_GROUPS = [
     { key: 'g.work', keys: ['board'] },
-    { key: 'g.learn', keys: ['capture', 'deconstruct', 'imitate', 'search', 'bloggers', 'learn'] },
+    { key: 'g.learn', keys: ['capture', 'deconstruct', 'imitate', 'search', 'bloggers', 'learn', 'study'] },
     { key: 'g.orig', keys: ['original', 'topics', 'idea', 'insp'] },
-    { key: 'g.mine', keys: ['account', 'accounts', 'worksLearn', 'worksOrig', 'drafts', 'settings'] },
+    { key: 'g.mine', keys: ['account', 'accounts', 'worksOrig', 'drafts', 'settings'] },
   ]
     const TAB_ICONS = {
       board: '▤',
@@ -824,12 +826,12 @@ window.__ModuleLoader__.load({
       search: '◈',
       bloggers: '☰',
       learn: '◍',
+      study: '▦',
       original: '✦',
       topics: '❖',
       idea: '✧',
       insp: '✩',
       accounts: '◉',
-      worksLearn: '❐',
       worksOrig: '❑',
       drafts: '▢',
       account: '◎',
@@ -988,7 +990,7 @@ window.__ModuleLoader__.load({
 
     function loadStartTab() {
       const p = prefs().startTab
-      const ok = ['board', 'capture', 'search', 'bloggers', 'accounts', 'insp', 'worksLearn', 'worksOrig', 'deconstruct']
+      const ok = ['board', 'capture', 'search', 'bloggers', 'accounts', 'insp', 'study', 'worksOrig', 'deconstruct']
       return ok.indexOf(p) >= 0 ? p : 'board'
     }
 
@@ -1144,6 +1146,51 @@ window.__ModuleLoader__.load({
       '.xm-tc-act{flex:0 0 152px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}',
       '.xm-tc-act .xm-btn{padding:3px 8px;font-size:11.5px;border-radius:7px;line-height:1.5;}',
       '.xm-thead.xm-trow{padding:8px 14px;}',
+      /* 学习库（多维表格） */
+      '.xm-lib{display:flex;flex-direction:column;gap:10px;padding:4px 2px 30px;min-height:0;}',
+      '.xm-lib-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;}',
+      '.xm-lib-h b{font-size:17px;font-weight:700;}',
+      '.xm-lib-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}',
+      '.xm-lib-sep{width:1px;height:16px;background:rgba(128,128,128,.24);margin:0 4px;}',
+      '.xm-lib-q{flex:1 1 200px;min-width:160px;max-width:320px;}',
+      '.xm-lib-add{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid rgba(128,128,128,.18);border-radius:12px;background:rgba(255,255,255,.03);}',
+      '.xm-lib-addrow{display:flex;gap:8px;flex-wrap:wrap;}',
+      '.xm-lib-ta{min-height:76px;resize:vertical;font:inherit;}',
+      '.xm-lib-addact{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}',
+      '.xm-lib-tbl{max-height:none;}',
+      '.xm-lib-tbl .xm-tbl{min-width:0;width:100%;}',
+      '.xm-tr{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(128,128,128,.12);}',
+      '.xm-tr:last-child{border-bottom:0;}',
+      '.xm-tr.picked{background:rgba(255,46,77,.07);box-shadow:inset 3px 0 0 #ff2e4d;}',
+      '.xm-tr.xm-tr-head{position:sticky;top:0;background:rgba(128,128,128,.1);font-size:11px;letter-spacing:.04em;opacity:.72;z-index:1;padding:8px 12px;}',
+      '.xm-lc-check{flex:0 0 20px;}',
+      '.xm-lc-kind{flex:0 0 78px;}',
+      '.xm-lc-main{flex:1 1 280px;min-width:200px;cursor:pointer;}',
+      '.xm-lc-src{flex:0 0 118px;display:flex;gap:6px;align-items:center;overflow:hidden;}',
+      '.xm-lc-data{flex:0 0 128px;font-size:11px;opacity:.85;}',
+      '.xm-lc-tags{flex:0 0 120px;display:flex;gap:4px;flex-wrap:wrap;}',
+      '.xm-lc-time{flex:0 0 78px;font-size:11px;opacity:.7;}',
+      '.xm-lc-act{flex:0 0 168px;display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}',
+      '.xm-lc-act .xm-btn{padding:3px 7px;font-size:11.5px;border-radius:7px;}',
+      '.xm-lib-t{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+      '.xm-lib-s{font-size:11.5px;opacity:.62;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}',
+      '.xm-lib-author{font-size:11px;opacity:.72;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+      '.xm-lib-kind{font-size:11px;padding:2px 7px;border-radius:6px;background:rgba(128,128,128,.16);white-space:nowrap;}',
+      '.xm-lib-kind.k-deconstruct{background:rgba(255,46,77,.16);color:#ff6b82;}',
+      '.xm-lib-kind.k-imitate{background:rgba(64,158,255,.16);color:#66b1ff;}',
+      '.xm-lib-kind.k-analysis{background:rgba(46,204,113,.16);color:#4ade80;}',
+      '.xm-lib-kind.k-blogger{background:rgba(246,196,69,.18);color:#f6c445;}',
+      '.xm-lib-kind.k-learn,.xm-lib-kind.k-backend{background:rgba(155,120,255,.18);color:#b39bff;}',
+      '.xm-lib-kind.k-manual{background:rgba(128,128,128,.2);}',
+      '.xm-lib-empty{padding:36px 16px;text-align:center;font-size:12.5px;opacity:.6;}',
+      '.xm-lib-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:60;display:flex;justify-content:flex-end;}',
+      '.xm-lib-drawer{width:min(720px,92vw);height:100%;overflow:auto;background:#141518;border-left:1px solid rgba(255,255,255,.1);padding:16px 18px 40px;display:flex;flex-direction:column;gap:8px;color:#f2f3f5;}',
+      '.xm-lib-dhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}',
+      '.xm-lib-dhead b{font-size:15px;line-height:1.4;}',
+      '.xm-lib-dmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:11.5px;opacity:.8;}',
+      '.xm-lib-dact{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 6px;}',
+      '.xm-lib-pre{white-space:pre-wrap;word-break:break-word;font-size:12.5px;line-height:1.75;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;margin:0;max-height:none;}',
+
       '.xm-seg{display:inline-flex;border:1px solid rgba(128,128,128,.26);border-radius:8px;overflow:hidden;}',
       '.xm-seg-btn{border:0;background:transparent;color:inherit;font:inherit;font-size:11.5px;padding:4px 9px;cursor:pointer;opacity:.62;}',
       '.xm-seg-btn.on{background:rgba(255,46,77,.16);color:#ff4d68;opacity:1;}',
@@ -4953,6 +5000,590 @@ window.__ModuleLoader__.load({
     )
   }
 
+  /* ---------- 学习库：拆解 / 仿写 / 视频解析 / 博主 统一成一张多维表格 ---------- */
+  function fmtDay(ts) {
+    const d = new Date(Number(ts) || 0)
+    if (!d.getTime()) return '—'
+    const p = function (n) {
+      return n < 10 ? '0' + n : '' + n
+    }
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate())
+  }
+
+  function fmtStat(s) {
+    if (!s) return ''
+    const parts = []
+    if (s.likes) parts.push('赞 ' + fmtNum(s.likes))
+    if (s.collects) parts.push('藏 ' + fmtNum(s.collects))
+    if (s.comments) parts.push('评 ' + fmtNum(s.comments))
+    return parts.join(' · ')
+  }
+
+  const STUDY_KINDS = [
+    { k: '', zh: '全部', en: 'All' },
+    { k: 'deconstruct', zh: '拆解', en: 'Decode' },
+    { k: 'imitate', zh: '仿写', en: 'Rewrite' },
+    { k: 'analysis', zh: '视频解析', en: 'Video' },
+    { k: 'blogger', zh: '博主', en: 'Creators' },
+    { k: 'learn', zh: '账号学习', en: 'Account' },
+    { k: 'backend', zh: '后台分析', en: 'Backend' },
+    { k: 'original', zh: '原创', en: 'Original' },
+    { k: 'topics', zh: '选题', en: 'Topics' },
+    { k: 'manual', zh: '手动', en: 'Manual' },
+  ]
+
+  const KIND_LABEL = {}
+  STUDY_KINDS.forEach(function (o) {
+    if (o.k) KIND_LABEL[o.k] = o
+  })
+
+  function Study(props) {
+    const flash = (props && props.flash) || function () {}
+    const [data, setData] = useState({ items: [], counts: { byKind: {}, byPlatform: {}, total: 0 }, matched: 0 })
+    const [kind, setKind] = useState('')
+    const [plat, setPlat] = useState('')
+    const [q, setQ] = useState('')
+    const [starred, setStarred] = useState(false)
+    const [sel, setSel] = useState([])
+    const [detail, setDetail] = useState(null)
+    const [editTags, setEditTags] = useState('')
+    const [editNote, setEditNote] = useState('')
+    const [addOpen, setAddOpen] = useState(false)
+    const [busy, setBusy] = useState('')
+    const [err, setErr] = useState('')
+    const [nf, setNf] = useState({ kind: 'manual', platform: '', title: '', url: '', summary: '', tags: '' })
+
+    const load = useCallback(
+      function () {
+        const qs = []
+        if (kind) qs.push('kind=' + encodeURIComponent(kind))
+        if (plat) qs.push('platform=' + encodeURIComponent(plat))
+        if (q.trim()) qs.push('q=' + encodeURIComponent(q.trim()))
+        if (starred) qs.push('starred=1')
+        fetch(BRIDGE_BASE + '/api/study' + (qs.length ? '?' + qs.join('&') : ''), { cache: 'no-store' })
+          .then(function (r) {
+            return r.json()
+          })
+          .then(function (j) {
+            if (!j || !j.ok) throw new Error((j && j.error) || '读取失败')
+            setData({ items: j.items || [], counts: j.counts || {}, matched: j.matched || 0 })
+            setErr('')
+          })
+          .catch(function (e) {
+            setErr('采集桥没响应（先双击 bridge\\start-bridge.bat）：' + String((e && e.message) || e))
+          })
+      },
+      [kind, plat, q, starred],
+    )
+
+    useEffect(
+      function () {
+        load()
+      },
+      [load],
+    )
+
+    const openDetail = function (it) {
+      setDetail(it)
+      setEditTags((it.tags || []).join(', '))
+      setEditNote(it.note || '')
+      fetch(BRIDGE_BASE + '/api/study/item?id=' + encodeURIComponent(it.id), { cache: 'no-store' })
+        .then(function (r) {
+          return r.json()
+        })
+        .then(function (j) {
+          if (j && j.ok && j.item) setDetail(j.item)
+        })
+        .catch(function () {})
+    }
+
+    const patchItem = function (id, body) {
+      fetch(BRIDGE_BASE + '/api/study', {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(Object.assign({ id: id }, body)),
+      })
+        .then(function (r) {
+          return r.json()
+        })
+        .then(function (j) {
+          if (!j || !j.ok) throw new Error((j && j.error) || '保存失败')
+          load()
+          if (detail && detail.id === id) setDetail(Object.assign({}, detail, j.item))
+        })
+        .catch(function (e) {
+          flash('保存失败：' + String((e && e.message) || e))
+        })
+    }
+
+    const removeIds = function (ids, done) {
+      if (!ids.length) return
+      setBusy('remove')
+      fetch(BRIDGE_BASE + '/api/study/remove', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ids: ids }),
+      })
+        .then(function (r) {
+          return r.json()
+        })
+        .then(function (j) {
+          flash('已删除 ' + ((j && j.removed) || ids.length) + ' 条')
+          setSel([])
+          if (detail && ids.indexOf(detail.id) >= 0) setDetail(null)
+          load()
+          if (done) done()
+        })
+        .catch(function () {
+          flash('删除失败：桥没响应')
+        })
+        .then(function () {
+          setBusy('')
+        })
+    }
+
+    const addManual = function () {
+      if (!nf.title.trim()) return flash('先写个标题（比如「XX 视频的钩子」）')
+      setBusy('add')
+      const body = {
+        items: [
+          {
+            kind: nf.kind,
+            platform: nf.platform,
+            title: nf.title.trim(),
+            url: nf.url.trim(),
+            summary: nf.summary.trim(),
+            text: nf.summary.trim(),
+            tags: nf.tags
+              .split(/[,，\s]+/)
+              .filter(Boolean)
+              .map(function (x) {
+                return x.replace(/^#/, '')
+              }),
+          },
+        ],
+      }
+      fetch(BRIDGE_BASE + '/api/study', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+        .then(function (r) {
+          return r.json()
+        })
+        .then(function (j) {
+          if (j && j.dup) flash('这条已经在库里了，没重复加')
+          else flash('已加入学习库')
+          setNf({ kind: 'manual', platform: '', title: '', url: '', summary: '', tags: '' })
+          setAddOpen(false)
+          load()
+        })
+        .catch(function () {
+          flash('加入失败：桥没响应')
+        })
+        .then(function () {
+          setBusy('')
+        })
+    }
+
+    const doDedupe = function () {
+      setBusy('dedupe')
+      fetch(BRIDGE_BASE + '/api/study/dedupe', { method: 'POST' })
+        .then(function (r) {
+          return r.json()
+        })
+        .then(function (j) {
+          flash(j && j.removed ? '去重完成，合并了 ' + j.removed + ' 条' : '没有发现重复的')
+          load()
+        })
+        .catch(function () {
+          flash('去重失败：桥没响应')
+        })
+        .then(function () {
+          setBusy('')
+        })
+    }
+
+    const items = data.items || []
+    const counts = data.counts || { byKind: {}, byPlatform: {}, total: 0 }
+    const shownIds = items.map(function (x) {
+      return x.id
+    })
+    const allChecked = shownIds.length > 0 && shownIds.every(function (id) {
+      return sel.indexOf(id) >= 0
+    })
+
+    const toggleSel = function (id) {
+      setSel(function (prev) {
+        return prev.indexOf(id) >= 0
+          ? prev.filter(function (x) {
+              return x !== id
+            })
+          : prev.concat([id])
+      })
+    }
+
+    const toggleAll = function () {
+      setSel(allChecked ? [] : shownIds)
+    }
+
+    return h(
+      'div',
+      { className: 'xm-lib' },
+      h(
+        'div',
+        { className: 'xm-lib-h' },
+        h('b', null, '学习库'),
+        h('span', { className: 'xm-dim' }, '拆解、仿写、视频解析、博主都在这一张表里；打标签、写备注、重复的能一键清掉'),
+        h('span', { className: 'xm-dim', style: { marginLeft: 'auto' } }, '共 ' + (counts.total || 0) + ' 条'),
+      ),
+      h(
+        'div',
+        { className: 'xm-lib-bar' },
+        STUDY_KINDS.map(function (o) {
+          const n = o.k ? counts.byKind[o.k] || 0 : counts.total || 0
+          return h(
+            'button',
+            {
+              key: o.k || 'all',
+              className: 'xm-mini' + (kind === o.k ? ' on' : ''),
+              onClick: function () {
+                setKind(o.k)
+              },
+            },
+            o.zh + (n ? ' ' + n : ''),
+          )
+        }),
+        h('span', { className: 'xm-lib-sep' }),
+        h(
+          'button',
+          { className: 'xm-mini' + (plat === '' ? ' on' : ''), onClick: function () { setPlat('') } },
+          '全部平台',
+        ),
+        h(
+          'button',
+          { className: 'xm-mini' + (plat === 'xhs' ? ' on' : ''), onClick: function () { setPlat('xhs') } },
+          '小红书',
+        ),
+        h(
+          'button',
+          { className: 'xm-mini' + (plat === 'douyin' ? ' on' : ''), onClick: function () { setPlat('douyin') } },
+          '抖音',
+        ),
+        h('input', {
+          className: 'xm-input xm-lib-q',
+          placeholder: '搜标题 / 作者 / 标签 / 备注',
+          value: q,
+          onChange: function (e) {
+            setQ(e.target.value)
+          },
+        }),
+        h(
+          'button',
+          {
+            className: 'xm-mini' + (starred ? ' on' : ''),
+            onClick: function () {
+              setStarred(!starred)
+            },
+          },
+          '★ 星标',
+        ),
+        h(
+          'button',
+          { className: 'xm-btn', onClick: load },
+          '刷新',
+        ),
+        h(
+          'button',
+          { className: 'xm-btn', onClick: function () { setAddOpen(!addOpen) } },
+          addOpen ? '收起' : '＋ 添加',
+        ),
+        h(
+          'button',
+          { className: 'xm-btn', onClick: doDedupe, disabled: busy === 'dedupe' },
+          busy === 'dedupe' ? '去重中…' : '去重',
+        ),
+        sel.length
+          ? h(
+              'button',
+              {
+                className: 'xm-btn danger',
+                onClick: function () {
+                  removeIds(sel)
+                },
+                disabled: busy === 'remove',
+              },
+              '删除选中 ' + sel.length,
+            )
+          : null,
+      ),
+      err ? h('div', { className: 'xm-err' }, err) : null,
+      addOpen
+        ? h(
+            'div',
+            { className: 'xm-lib-add' },
+            h(
+              'div',
+              { className: 'xm-lib-addrow' },
+              h(
+                'select',
+                {
+                  className: 'xm-sel',
+                  value: nf.kind,
+                  onChange: function (e) {
+                    setNf(Object.assign({}, nf, { kind: e.target.value }))
+                  },
+                },
+                ['manual', 'deconstruct', 'imitate', 'analysis', 'blogger', 'learn', 'backend'].map(function (k) {
+                  return h('option', { key: k, value: k }, KIND_LABEL[k] ? KIND_LABEL[k].zh : k)
+                }),
+              ),
+              h(
+                'select',
+                {
+                  className: 'xm-sel',
+                  value: nf.platform,
+                  onChange: function (e) {
+                    setNf(Object.assign({}, nf, { platform: e.target.value }))
+                  },
+                },
+                h('option', { value: '' }, '不限平台'),
+                h('option', { value: 'xhs' }, '小红书'),
+                h('option', { value: 'douyin' }, '抖音'),
+              ),
+            ),
+            h('input', {
+              className: 'xm-input',
+              placeholder: '标题（必填）',
+              value: nf.title,
+              onChange: function (e) {
+                setNf(Object.assign({}, nf, { title: e.target.value }))
+              },
+            }),
+            h('input', {
+              className: 'xm-input',
+              placeholder: '链接（可选）',
+              value: nf.url,
+              onChange: function (e) {
+                setNf(Object.assign({}, nf, { url: e.target.value }))
+              },
+            }),
+            h('textarea', {
+              className: 'xm-input xm-lib-ta',
+              placeholder: '记下要点：钩子怎么写的、结构、你打算怎么用',
+              value: nf.summary,
+              onChange: function (e) {
+                setNf(Object.assign({}, nf, { summary: e.target.value }))
+              },
+            }),
+            h('input', {
+              className: 'xm-input',
+              placeholder: '标签，逗号分隔（如：钩子, 口播, 摄影）',
+              value: nf.tags,
+              onChange: function (e) {
+                setNf(Object.assign({}, nf, { tags: e.target.value }))
+              },
+            }),
+            h(
+              'div',
+              { className: 'xm-lib-addact' },
+              h('button', { className: 'xm-btn primary', onClick: addManual, disabled: busy === 'add' }, busy === 'add' ? '加入中…' : '加入学习库'),
+              h('span', { className: 'xm-dim' }, '同类型 + 同标题会自动判重，不会加第二条'),
+            ),
+          )
+        : null,
+      h(
+        'div',
+        { className: 'xm-tbl-wrap xm-lib-tbl' },
+        h(
+          'div',
+          { className: 'xm-tbl' },
+          h(
+            'div',
+            { className: 'xm-tr xm-tr-head' },
+            h('div', { className: 'xm-tcell xm-lc-check' }, h('input', { type: 'checkbox', checked: allChecked, onChange: toggleAll })),
+            h('div', { className: 'xm-tcell xm-lc-kind' }, '类型'),
+            h('div', { className: 'xm-tcell xm-lc-main' }, '标题 / 要点'),
+            h('div', { className: 'xm-tcell xm-lc-src' }, '来源'),
+            h('div', { className: 'xm-tcell xm-lc-data' }, '数据'),
+            h('div', { className: 'xm-tcell xm-lc-tags' }, '标签'),
+            h('div', { className: 'xm-tcell xm-lc-time' }, '时间'),
+            h('div', { className: 'xm-tcell xm-lc-act' }, '操作'),
+          ),
+          items.length
+            ? items.map(function (it) {
+                const lab = KIND_LABEL[it.kind]
+                return h(
+                  'div',
+                  {
+                    key: it.id,
+                    className: 'xm-tr xm-lc-row' + (sel.indexOf(it.id) >= 0 ? ' picked' : '') + (it.starred ? ' starred' : ''),
+                  },
+                  h(
+                    'div',
+                    { className: 'xm-tcell xm-lc-check' },
+                    h('input', {
+                      type: 'checkbox',
+                      checked: sel.indexOf(it.id) >= 0,
+                      onChange: function () {
+                        toggleSel(it.id)
+                      },
+                    }),
+                  ),
+                  h(
+                    'div',
+                    { className: 'xm-tcell xm-lc-kind' },
+                    h('span', { className: 'xm-lib-kind k-' + it.kind }, lab ? lab.zh : it.kind),
+                  ),
+                  h(
+                    'div',
+                    { className: 'xm-tcell xm-lc-main', onClick: function () { openDetail(it) }, title: '点开看全文' },
+                    h('div', { className: 'xm-lib-t' }, (it.starred ? '★ ' : '') + it.title),
+                    h('div', { className: 'xm-lib-s' }, it.summary || '（还没有摘要，点开自己写）'),
+                  ),
+                  h(
+                    'div',
+                    { className: 'xm-tcell xm-lc-src' },
+                    it.platform ? h('span', { className: 'xm-badge plat-' + it.platform }, it.platform === 'xhs' ? '小红书' : '抖音') : null,
+                    h('span', { className: 'xm-dim xm-lib-author' }, it.author || '—'),
+                  ),
+                  h('div', { className: 'xm-tcell xm-lc-data' }, fmtStat(it.stats) || '—'),
+                  h(
+                    'div',
+                    { className: 'xm-tcell xm-lc-tags' },
+                    (it.tags || []).slice(0, 3).map(function (tg) {
+                      return h('span', { key: tg, className: 'xm-tag' }, tg)
+                    }),
+                    (it.tags || []).length === 0 ? h('span', { className: 'xm-dim' }, '—') : null,
+                  ),
+                  h('div', { className: 'xm-tcell xm-lc-time' }, fmtDay(it.at)),
+                  h(
+                    'div',
+                    { className: 'xm-tcell xm-lc-act' },
+                    h(
+                      'button',
+                      { className: 'xm-btn xs', onClick: function () { openDetail(it) } },
+                      '打开',
+                    ),
+                    h(
+                      'button',
+                      {
+                        className: 'xm-btn xs' + (it.starred ? ' primary' : ''),
+                        onClick: function () {
+                          patchItem(it.id, { starred: !it.starred })
+                        },
+                      },
+                      it.starred ? '★' : '☆',
+                    ),
+                    it.url
+                      ? h(
+                          'a',
+                          { className: 'xm-btn xs', href: it.url, target: '_blank', rel: 'noreferrer', title: '打开原帖' },
+                          '↗',
+                        )
+                      : null,
+                    h(
+                      'button',
+                      { className: 'xm-btn xs danger', onClick: function () { removeIds([it.id]) } },
+                      '删',
+                    ),
+                  ),
+                )
+              })
+            : h(
+                'div',
+                { className: 'xm-lib-empty' },
+                '学习库还是空的：去「拆解」「仿写」「找博主」跑一条，或者点上面「＋ 添加」自己记一条。',
+              ),
+        ),
+      ),
+      detail
+        ? h(
+            'div',
+            { className: 'xm-lib-mask', onClick: function () { setDetail(null) } },
+            h(
+              'div',
+              {
+                className: 'xm-lib-drawer',
+                onClick: function (e) {
+                  e.stopPropagation()
+                },
+              },
+              h(
+                'div',
+                { className: 'xm-lib-dhead' },
+                h('b', null, detail.title),
+                h(
+                  'button',
+                  { className: 'xm-btn xs', onClick: function () { setDetail(null) } },
+                  '关闭',
+                ),
+              ),
+              h(
+                'div',
+                { className: 'xm-lib-dmeta' },
+                h('span', { className: 'xm-lib-kind k-' + detail.kind }, KIND_LABEL[detail.kind] ? KIND_LABEL[detail.kind].zh : detail.kind),
+                detail.platform ? h('span', { className: 'xm-badge plat-' + detail.platform }, detail.platform === 'xhs' ? '小红书' : '抖音') : null,
+                detail.author ? h('span', { className: 'xm-dim' }, detail.author) : null,
+                h('span', { className: 'xm-dim' }, fmtDay(detail.at)),
+                fmtStat(detail.stats) ? h('span', { className: 'xm-dim' }, fmtStat(detail.stats)) : null,
+              ),
+              h('div', { className: 'xm-lab' }, '标签（逗号分隔）'),
+              h('input', {
+                className: 'xm-input',
+                value: editTags,
+                onChange: function (e) {
+                  setEditTags(e.target.value)
+                },
+              }),
+              h('div', { className: 'xm-lab' }, '我的备注：下次怎么用上它'),
+              h('textarea', {
+                className: 'xm-input xm-lib-ta',
+                value: editNote,
+                onChange: function (e) {
+                  setEditNote(e.target.value)
+                },
+              }),
+              h(
+                'div',
+                { className: 'xm-lib-dact' },
+                h(
+                  'button',
+                  {
+                    className: 'xm-btn primary',
+                    onClick: function () {
+                      patchItem(detail.id, { tags: editTags, note: editNote })
+                      flash('已保存')
+                    },
+                  },
+                  '保存标签与备注',
+                ),
+                h(
+                  'button',
+                  {
+                    className: 'xm-btn',
+                    onClick: function () {
+                      copyText(detail.text || detail.summary || detail.title).then(function (ok) {
+                        flash(ok ? '已复制全文' : '复制失败')
+                      })
+                    },
+                  },
+                  '复制全文',
+                ),
+                h(
+                  'button',
+                  { className: 'xm-btn danger', onClick: function () { removeIds([detail.id]) } },
+                  '删除这条',
+                ),
+              ),
+              h('div', { className: 'xm-lab' }, '原文 / 拆解全文'),
+              h('pre', { className: 'xm-lib-pre' }, detail.text || detail.summary || '（这条没有存正文）'),
+            ),
+          )
+        : null,
+    )
+  }
+
   function Works(props) {
       const library = (props && props.library) || ''
       const [list, setList] = useState([])
@@ -5630,7 +6261,7 @@ window.__ModuleLoader__.load({
       const [gen, setGen] = useState(null)
       const genEs = useRef(null)
       /* 这些页签是「整页表格/看板」，占满宽度、不显示右栏 */
-      const FULL_TABS = ['board', 'capture', 'search', 'bloggers', 'accounts', 'insp', 'worksLearn', 'worksOrig', 'account', 'settings']
+      const FULL_TABS = ['board', 'capture', 'search', 'bloggers', 'accounts', 'insp', 'study', 'worksOrig', 'account', 'settings']
       const isFull = FULL_TABS.indexOf(tab) >= 0
 
       useEffect(function () {
@@ -6279,8 +6910,8 @@ window.__ModuleLoader__.load({
                         })
                       : tab === 'drafts'
                       ? h(Drafts, { items: drafts, onLoad: loadDraft, onDelete: removeDraft })
-                      : tab === 'worksLearn'
-                        ? h(Works, { library: 'learn' })
+                      : tab === 'study'
+                        ? h(Study, { flash: flash })
                         : tab === 'worksOrig'
                         ? h(Works, { library: 'orig' })
                         : tab === 'account'

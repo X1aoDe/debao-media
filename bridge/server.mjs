@@ -18,6 +18,7 @@ import { generateStream, textProvider, TEXT_MODEL } from './text.mjs'
 import { hotBoard, keywordBoard, searchUsers, userProfile } from './social.mjs'
 import { summarizeAccount } from './account.mjs'
 import { createStore as createBackendStore, parseCsv, parseXlsx, normalizeRow, signatureOf, kbCatalog, kbDoc, searchKb } from './backend.mjs'
+import { createStudy } from './study.mjs'
 import {
   keyInfo as tkKeyInfo,
   fetchNote as tkFetchNote,
@@ -49,6 +50,7 @@ const MAX_UPLOAD_BYTES = Number(process.env.DEBAO_MAX_UPLOAD_MB || 200) * 104857
 const INSP_FILE = path.join(DATA_DIR, 'inspirations.json')
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json')
 const backendStore = createBackendStore(DATA_DIR)
+const study = createStudy(DATA_DIR)
 let accountCache = null /* /api/account/summary 按 updatedAt 缓存，避免每次重解析几百 KB */
 const MAX_INSP = 800
 const VERSION = '2.7.0'
@@ -1196,6 +1198,63 @@ const server = http.createServer(async (req, res) => {
       })
       writeJSON(GENERATIONS_FILE, next)
       return send(res, 200, { ok: true, removed: list.length - next.length })
+    }
+
+    /* ---------------- 学习库：拆解 / 仿写 / 视频解析 / 博主 统一成一张表 ---------------- */
+    if (method === 'GET' && p === '/api/study') {
+      const out = study.list({
+        kind: u.searchParams.get('kind'),
+        platform: u.searchParams.get('platform'),
+        origin: u.searchParams.get('origin'),
+        tag: u.searchParams.get('tag'),
+        q: u.searchParams.get('q'),
+        starred: u.searchParams.get('starred') === '1',
+        limit: u.searchParams.get('limit'),
+      })
+      return send(res, 200, Object.assign({ ok: true }, out))
+    }
+
+    if (method === 'GET' && p === '/api/study/item') {
+      const id = String(u.searchParams.get('id') || '')
+      const it = study.get(id)
+      if (!it) return send(res, 404, { ok: false, error: 'not found' })
+      return send(res, 200, { ok: true, item: it })
+    }
+
+    if (method === 'POST' && p === '/api/study/sync') {
+      study.sync(true)
+      return send(res, 200, { ok: true, count: study.counts(), syncedAt: Date.now() })
+    }
+
+    if (method === 'POST' && p === '/api/study') {
+      const b = (await readBody(req)) || {}
+      const out = study.add(b.items || b, Date.now())
+      if (!out.added.length && out.skipped.length) return send(res, 200, { ok: true, added: [], skipped: out.skipped, dup: true })
+      return send(res, 200, { ok: true, added: out.added, skipped: out.skipped })
+    }
+
+    if (method === 'PATCH' && p === '/api/study') {
+      const b = (await readBody(req)) || {}
+      const it = study.patch(String(b.id || ''), b)
+      if (!it) return send(res, 404, { ok: false, error: 'not found' })
+      return send(res, 200, { ok: true, item: it })
+    }
+
+    if (method === 'DELETE' && p === '/api/study') {
+      const id = String(u.searchParams.get('id') || '')
+      const out = study.remove([id])
+      return send(res, 200, { ok: true, removed: out.removed })
+    }
+
+    if (method === 'POST' && p === '/api/study/remove') {
+      const b = (await readBody(req)) || {}
+      const out = study.remove(Array.isArray(b.ids) ? b.ids : [])
+      return send(res, 200, { ok: true, removed: out.removed })
+    }
+
+    if (method === 'POST' && p === '/api/study/dedupe') {
+      const out = study.dedupe()
+      return send(res, 200, { ok: true, removed: out.removed, left: out.left })
     }
 
     /* ---------------- 灵感记录库（原创库的弹药） ---------------- */

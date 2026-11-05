@@ -1,8 +1,9 @@
 // 插件自检：在 node 里模拟 DSH 的 __ModuleLoader__，跑一遍工厂 + 五个指令生成器
 import fs from 'node:fs'
 
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { dirname, join } from 'node:path'
+import os from 'node:os'
 
 const CLIENT = join(dirname(dirname(fileURLToPath(import.meta.url))), 'client.js')
 const ROOT = dirname(CLIENT)
@@ -237,9 +238,10 @@ for (const k of ['deconstruct', 'imitate', 'search', 'bloggers', 'learn', 'origi
 if (TAB_KEYS.includes('media')) throw new Error('视频/音乐不该再是独立页签（已并入拆解）')
 if (TAB_KEYS.includes('cover')) throw new Error('封面不该再是独立页签（已并入仿写）')
 if (TAB_KEYS.includes('hot')) throw new Error('热榜不该再是独立页签（已并入搜索）')
-for (const k of ['worksLearn', 'worksOrig']) {
+for (const k of ['study', 'worksOrig']) {
   if (!TAB_KEYS.includes(k)) throw new Error('缺页签: ' + k)
 }
+if (TAB_KEYS.includes('worksLearn')) throw new Error('拆解学习库已并入「学习库」，不该再是独立页签')
 if (TAB_KEYS.length !== 17) throw new Error('页签数量不对: ' + TAB_KEYS.length)
 if (!TAB_KEYS.includes('settings')) throw new Error('缺页签: settings')
 if (!TAB_KEYS.includes('account')) throw new Error('缺页签: account（后台数据）')
@@ -700,6 +702,61 @@ console.log('douyin board : item/list metrics / 数据中心总览 / 粉丝画�
   assert(src.includes('整段看（推荐）') && src.includes('抽帧快跑（省 token）'), '拆解页要有「怎么解析」两档')
   assert(analyzeSrc2.includes('const wantVideo = wantMode !== \'frames\''), 'auto 档要一律整段看')
   console.log('analyze v3   : 超大视频压小样 / 拆解页贴链接解析 ok')
+}
+
+/* 学习库：把拆解 / 仿写 / 视频解析 / 博主统一成一张表，可加删改查、可去重 */
+{
+  const studySrc = fs.readFileSync(join(ROOT, 'bridge', 'study.mjs'), 'utf8')
+  for (const fn of ['createStudy', 'function harvest', 'function dedupe', 'function patch', 'function remove']) {
+    assert(studySrc.includes(fn), 'study.mjs 缺少 ' + fn)
+  }
+  assert(studySrc.includes('hidden'), '删掉的行要进黑名单，别下次同步又冒出来')
+  assert(serverSrc.includes('/api/study'), '桥要有 /api/study')
+  assert(serverSrc.includes('/api/study/dedupe'), '桥要有去重接口')
+  assert(src.includes('function Study(props)'), 'client 要有 Study 组件')
+  for (const marker of ['xm-lib', '学习库', '去重', '删除选中', '＋ 添加', 'xm-lib-drawer']) {
+    assert(src.includes(marker), '学习库界面缺少 ' + marker)
+  }
+
+  /* 真跑一遍：造两个来源 + 一条手动，验证同步、去重、改标签、删除黑名单 */
+  const tmp = fs.mkdtempSync(join(os.tmpdir(), 'debao-study-'))
+  fs.writeFileSync(
+    join(tmp, 'generations.json'),
+    JSON.stringify([
+      { id: 'g1', kind: 'deconstruct', platform: 'xhs', title: '在菜市场打开闪光灯', text: '## 一、用户任务\n当用户想拍油画感时…', at: 1000, usage: { total_tokens: 120 } },
+      { id: 'g2', kind: 'imitate', platform: 'douyin', title: '海边八级大风', text: '仿写正文…', at: 2000 },
+    ]),
+    'utf8',
+  )
+  fs.writeFileSync(
+    join(tmp, 'analyses.json'),
+    JSON.stringify([
+      { id: 'a1', platform: 'xhs', at: 3000, meta: { title: '一种很新的群像方式', author: { name: '暴躁小七' }, likes: 9205 }, result: { summary: '一句话总结', timeline: [{ t: 0, shot: '开场' }] } },
+      { id: 'a2', platform: 'xhs', at: 2500, meta: { title: '一种很新的群像方式', author: { name: '暴躁小七' } }, result: { summary: '重复的那条' } },
+    ]),
+    'utf8',
+  )
+  const { createStudy } = await import(pathToFileURL(join(ROOT, 'bridge', 'study.mjs')).href)
+  const st = createStudy(tmp)
+  const first = st.list({})
+  assert(first.counts.total === 4, '同步后应当是 4 条，实际 ' + first.counts.total)
+  assert(first.items.every((x) => !('text' in x)), '列表不该把全文塞给前端')
+  const dup = st.dedupe()
+  assert(dup.removed === 1, '同标题的两条视频解析应当合并 1 条，实际 ' + dup.removed)
+  const one = st.list({ kind: 'analysis' }).items[0]
+  const patched = st.patch(one.id, { tags: '钩子, 群像', note: '下次照这个结构' })
+  assert(patched.tags.length === 2 && patched.note.length > 0, '标签/备注要能改')
+  const added = st.add({ title: '我自己记的一条', kind: 'manual', platform: 'xhs', summary: '要点' })
+  assert(added.added.length === 1, '手动添加要成功')
+  const again = st.add({ title: '我自己记的一条', kind: 'manual', platform: 'xhs' })
+  assert(again.skipped.length === 1, '同类型同标题要判重')
+  st.remove([one.id])
+  const after = st.list({})
+  assert(!after.items.some((x) => x.id === one.id), '删掉的行不该还在')
+  st.sync(true)
+  assert(!st.list({}).items.some((x) => x.id === one.id), '重新同步不该让删掉的行复活')
+  fs.rmSync(tmp, { recursive: true, force: true })
+  console.log('study library: 学习库同步 / 去重 / 标签备注 / 增删 / 黑名单 ok')
 }
 
 console.log('\nALL CHECKS PASSED')

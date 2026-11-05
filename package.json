@@ -1,6 +1,6 @@
 {
   "name": "@local/debao-media",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "德饱自媒体助手：采集 / 拆解 / 仿写 / 原创 / 选题 / 视频解析 / 热榜 / 博主 / 账号学习，左边一栏全干完。",

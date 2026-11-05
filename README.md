@@ -1,6 +1,6 @@
 # 德饱自媒体助手（@local/debao-media）
 
-**下载安装包**：[最新 Release](https://github.com/X1aoDe/debao-media/releases/latest)
+**下载安装包**：[Releases（含最新 Beta 包）](https://github.com/X1aoDe/debao-media/releases)
 （`debao-media-plugin-v1.0.9.tgz`，382 KB，Windows · Beta · 免费）
 
 小红书 + 抖音双平台的内容工作台，一条流水线：

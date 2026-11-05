@@ -382,7 +382,7 @@ window.__ModuleLoader__.load({
         '低理解成本、大群体链接、满足核心需求、产生互动动机——逐条给「成立 / 偏弱 / 不成立」，并引用原文里支撑它的具体句子。',
         '',
         '## 三、内容路径归属',
-        '判断它属于哪种路径：万古同悲（共享情感记忆）/ 惊世骇俗（稀缺硬素材）/ 打破节奏（快中慢·繁中简·闹中静），指出它用的骨架，并逐段对应到本文。',
+        '判断它属于哪种路径：情感共鸣（共享记忆）/ 稀缺视角（硬素材）/ 反差节奏（快中慢·繁中简·闹中静），指出它用的骨架，并逐段对应到本文。',
         '',
         '## 四、标题与预期管理',
         '把标题抽象成公式，指出负责勾人的那个词；判断标题承诺与正文证据是否匹配（有没有超卖）；再按同一公式换皮给 5 个标题。',
@@ -501,7 +501,7 @@ window.__ModuleLoader__.load({
         '请输出：',
         '',
         '## 一、任务单',
-        '八行，每行一句话：目标用户与情境 / 看完的变化 / 首要目标（播放·关注·信任·转化）/ 平台入口 / 主要路径（万古同悲·惊世骇俗·打破节奏）/ 核心主张 / 证据状态（我手上真有什么）/ 系列归属。缺的写「待补」，不要编。',
+        '八行，每行一句话：目标用户与情境 / 看完的变化 / 首要目标（播放·关注·信任·转化）/ 平台入口 / 主要路径（情感共鸣·稀缺视角·反差节奏）/ 核心主张 / 证据状态（我手上真有什么）/ 系列归属。缺的写「待补」，不要编。',
         '',
         '## 二、结构选择',
         '从知识口播（用户问题→核心判断→2-4 理由→证据→反例与边界→下一步）、案例复盘（结果与口径→起点约束→关键选择→执行→数据→替代解释→可复用与不可复制）、人物/VLOG（目标→阻碍→选择→关系→变化→余波）里挑一个，说明为什么，并按它的分段列出来。',
@@ -541,7 +541,7 @@ window.__ModuleLoader__.load({
       lines.push('')
       lines.push('然后按下面这些元素各给 3 条（共 ' + count + ' 条）。每条都必须是一个能立刻开拍的选题，并标出：')
       lines.push('- 服务哪种需求：价值层（情绪 / 信息）、认知层（好奇 / 认同 / 得到）')
-      lines.push('- 走哪条路径：万古同悲（共享情感记忆）/ 惊世骇俗（稀缺硬素材）/ 打破节奏（快中慢·繁中简·闹中静）')
+      lines.push('- 走哪条路径：情感共鸣（共享记忆）/ 稀缺视角（硬素材）/ 反差节奏（快中慢·繁中简·闹中静）')
       lines.push('')
       list.forEach(function (k, i) {
         lines.push('元素' + (i + 1) + '：' + k.key + '（这类内容靠的是：' + k.desc + '）')
@@ -706,7 +706,7 @@ window.__ModuleLoader__.load({
         '【输出】',
         'A. 一句话结论（它靠什么留住人）。',
         'B. 时间轴表：秒数 | 画面 | 字幕/字卡 | 口播 | 声音。',
-        'C. 路径与结构归类：属于万古同悲 / 惊世骇俗 / 打破节奏哪一条；用的是知识口播 / 案例复盘 / 人物·VLOG 哪种结构模板；节奏在哪一层做变化（句内 / 段落 / 视听 / 信息流）。',
+        'C. 路径与结构归类：属于情感共鸣 / 稀缺视角 / 反差节奏哪一条；用的是知识口播 / 案例复盘 / 人物·VLOG 哪种结构模板；节奏在哪一层做变化（句内 / 段落 / 视听 / 信息流）。',
         'D. 可复用模板：把它的结构抽象成填空，3-5 步。',
         'E. 仿写脚本：按这个模板给我一条我的版本（口播逐句 + 分镜），' + platformBlock(ctx, 'imitate'),
         'F. 机读 JSON：{"kind":"video|music","hook":"","structure":["",""],"rhythm":"","peakSec":0,"reusable":"","tags":[]}',
@@ -3860,10 +3860,10 @@ window.__ModuleLoader__.load({
 
     lines.push('')
     lines.push('## 四、方法论口径（按这套判，不要用通用的「多发多互动」套话）')
-    lines.push('- **编导体系**：内容是人性问题的解决方案；爆款四必要条件（低理解成本 / 大群体链接 / 满足核心需求 / 产生互动动机）；三条内容路径（万古同悲 / 惊世骇俗 / 打破节奏）；行为链复盘 曝光→进入→观看→互动→主页→关注→转化，每个现象给两个替代解释，下一轮只改一个变量；系列承诺（同一问题 / 同一人物世界 / 同一形式 / 同一能力 / 同一变化）。')
+    lines.push('- **内容判断框架**：内容是人性问题的解决方案；爆款四必要条件（低理解成本 / 大群体链接 / 满足核心需求 / 产生互动动机）；三条内容路径（情感共鸣 / 稀缺视角 / 反差节奏）；行为链复盘 曝光→进入→观看→互动→主页→关注→转化，每个现象给两个替代解释，下一轮只改一个变量；系列承诺（同一问题 / 同一人物世界 / 同一形式 / 同一能力 / 同一变化）。')
     lines.push('- **Dan Koe（一人公司）**：内容即产品，先把「一个明确的问题 + 一套自己的解法」产品化，再谈流量；注意力 → 信任 → 交易三段漏斗；粉丝数不是资产，能复用的资产是作品与私域名单；每条内容都要能回答「谁看完会主动找你」。')
     lines.push('- **德饱（摄影师 IP 变现）**：先定产品（拍什么、多少钱、交付什么），内容服务于谈单；用客户案例与过程作为素材；私域承接比公域涨粉更重要。')
-    lines.push('- **知识库**：生成时会自动检索本机八本手册与视频解析笔记，引用时写清是哪一本的哪一章。')
+    lines.push('- **知识库**：生成时会自动检索你自己放进知识库的资料，有引用就说清楚是哪一篇的哪一节；没配知识库就别硬编。')
     lines.push('')
     lines.push('## 五、分析要求（用上面这套判，不要泛泛而谈）')
     lines.push('1. **账号定位判断**：用「用户任务 ∩ 我的真实资源 ∩ 平台消费场景 ∩ 可持续供给」判断我现在到底在做什么，一句话说清我是谁的内容对谁有用；如果定位是散的，指出散在哪几条作品之间。')
@@ -3872,7 +3872,7 @@ window.__ModuleLoader__.load({
     lines.push('4. **做得对的 3 条**：从我播放/点赞率最高的作品里提炼**可复用的机制**（不是「拍得好」，要说清是钩子类型、结构、场景反差还是信息密度），并写成能照抄的模板。')
     lines.push('5. **漏掉的 3 条**：从最差的几条与同类标杆的差距里，指出具体缺什么（前 3 秒没给预期？没有系列承诺？信息密度不够？）。')
     lines.push('6. **和采集库标杆的差距**：把我的最好成绩与上面对标里同类的头部做对比，差在选题、封面标题、还是结构，给具体差距倍数或比率。')
-    lines.push('7. **未来 7 天 5 个选题**：每条必须给「任务句（当…发生时，…想从…到…但被…卡住）」+ 内容路径（万古同悲 / 惊世骇俗 / 打破节奏）+ 前 3 秒逐字 + 结构骨架 + 拍摄要点。选题必须在我现有方向里，不要跳到无关赛道。')
+    lines.push('7. **未来 7 天 5 个选题**：每条必须给「任务句（当…发生时，…想从…到…但被…卡住）」+ 内容路径（情感共鸣 / 稀缺视角 / 反差节奏）+ 前 3 秒逐字 + 结构骨架 + 拍摄要点。选题必须在我现有方向里，不要跳到无关赛道。')
     lines.push('8. **21 天实验**：只改一个变量，给出对照组、观察指标（曝光→进入→观看→互动→主页→关注→转化 行为链上的哪一环）、判定标准与止损条件。')
     lines.push('9. **这一周不要做的 3 件事**。')
     lines.push('')
@@ -4559,7 +4559,7 @@ window.__ModuleLoader__.load({
         ? h(
             'div',
             { className: 'xm-bk-gen' },
-            h('div', { className: 'xm-bk-genh' }, h('span', null, 'AI 分析（DeepSeek · 知识库 · 编导方法论 · 采集库对标）'), props.gen.jobId ? h('span', { className: 'xm-bk-gmeta' }, props.gen.busy ? '生成中…' : '完成') : null),
+            h('div', { className: 'xm-bk-genh' }, h('span', null, 'AI 分析（DeepSeek · 知识库 · 内容方法 · 采集库对标）'), props.gen.jobId ? h('span', { className: 'xm-bk-gmeta' }, props.gen.busy ? '生成中…' : '完成') : null),
             h(GenResult, { gen: props.gen, empty: false }),
           )
         : null,
@@ -4578,6 +4578,10 @@ window.__ModuleLoader__.load({
     const [kbhits, setKbhits] = useState(null)
     const [kbdoc, setKbdoc] = useState(null)
     const [kblayer, setKblayer] = useState('distilled')
+    const [kbsrc, setKbsrc] = useState('auto')
+    const [kbdir, setKbdir] = useState('')
+    const [kbima, setKbima] = useState({ clientId: '', kbId: '', apiKey: '' })
+    const [kbtest, setKbtest] = useState('')
     const [busy, setBusy] = useState('')
     const [msg, setMsg] = useState('')
     const [f, setF] = useState({ arkKey: '', deepseekKey: '', tikhubKey: '', priceIn: '', priceOut: '', usdCny: '' })
@@ -4608,6 +4612,17 @@ window.__ModuleLoader__.load({
           return r.json()
         })
         .then(setTk)
+        .catch(function () {})
+      fetch(BRIDGE_BASE + '/api/kb/settings')
+        .then(function (r) {
+          return r.json()
+        })
+        .then(function (j) {
+          if (!j || !j.ok) return
+          setKbsrc(j.source || 'auto')
+          setKbdir(j.dir || '')
+          setKbima({ clientId: (j.ima && j.ima.clientId) || '', kbId: (j.ima && j.ima.kbId) || '', apiKey: '' })
+        })
         .catch(function () {})
       fetch(BRIDGE_BASE + '/api/kb/catalog')
         .then(function (r) {
@@ -4672,6 +4687,82 @@ window.__ModuleLoader__.load({
       save(patch)
     }
 
+    const reloadKb = function () {
+      fetch(BRIDGE_BASE + '/api/kb/catalog')
+        .then(function (r) {
+          return r.json()
+        })
+        .then(function (j) {
+          if (j && j.ok) {
+            setKb(j)
+            if (j.groups && j.groups.length) setKblayer(j.groups[0].key)
+          }
+        })
+        .catch(function () {})
+    }
+
+    const saveKb = function (patch) {
+      setKbtest('保存中…')
+      fetch(BRIDGE_BASE + '/api/kb/settings', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(patch || {}),
+      })
+        .then(function (r) {
+          return r.json()
+        })
+        .then(function (j) {
+          if (!j || !j.ok) throw new Error((j && j.error) || '保存失败')
+          if (patch && patch.source) setKbsrc(patch.source)
+          if (patch && patch.dir !== undefined) setKbdir(patch.dir)
+          setKbtest((j.status && j.status.note) || '已保存')
+          reloadKb()
+        })
+        .catch(function (e) {
+          setKbtest('保存失败：' + ((e && e.message) || ''))
+        })
+    }
+
+    const testKb = function () {
+      setKbtest('检测中…')
+      fetch(BRIDGE_BASE + '/api/kb/test', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ source: kbsrc, dir: kbdir, q: '拍摄' }),
+      })
+        .then(function (r) {
+          return r.json()
+        })
+        .then(function (j) {
+          if (!j || !j.ok) throw new Error((j && j.error) || '检测失败')
+          var t = '来源 ' + j.source + '：' + (j.note || ('共 ' + j.total + ' 篇'))
+          if (j.error) t += '（' + j.error + '）'
+          setKbtest(t)
+          reloadKb()
+        })
+        .catch(function (e) {
+          setKbtest('检测失败：' + ((e && e.message) || ''))
+        })
+    }
+
+    const searchKbNow = function () {
+      if (!kbq.trim()) return
+      fetch(BRIDGE_BASE + '/api/kb/search', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ q: kbq.trim(), limit: 8 }),
+      })
+        .then(function (r) {
+          return r.json()
+        })
+        .then(function (j) {
+          setKbhits(j && j.ok ? j.hits || [] : [])
+          if (j && j.ok && j.note) setKbtest(j.note)
+        })
+        .catch(function () {
+          setKbhits([])
+        })
+    }
     const srcText = function (from) {
       if (from === 'user-env') return '系统环境变量'
       if (from === 'file') return '本机文件'
@@ -4780,8 +4871,7 @@ window.__ModuleLoader__.load({
         ? h(
             'div',
             { className: 'xm-tbl-wrap' },
-            up && Array.isArray(up.sample) && up.sample.length
-              ? h(
+            h(
               'table',
               { className: 'xm-tbl-s' },
               h(
@@ -4812,8 +4902,7 @@ window.__ModuleLoader__.load({
                   )
                 }),
               ),
-            )
-              : null,
+            ),
           )
         : h('div', { className: 'xm-empty' }, '还没有调用记录。做一次拆解或解析就能看到。'),
 
@@ -4859,30 +4948,113 @@ window.__ModuleLoader__.load({
         h(
           'div',
           { className: 'xm-kbcard-h' },
-          h('span', null, '本机知识库 ' + (kb ? kb.total : '…') + ' 篇：薛辉 / 文案 / 编导 / 安先生 / 私域 / 德饱 / 蔡汶川 / 可成'),
-          kb && kb.search ? h('span', { className: 'xm-kbsrc' }, '生成时自动检索') : h('span', { className: 'xm-kbsrc warn' }, '检索模块没加载'),
+          h('span', null, '知识库来源'),
+          kb && kb.status && kb.status.ready
+            ? h('span', { className: 'xm-kbsrc' }, '已就绪 · ' + kb.status.note)
+            : h('span', { className: 'xm-kbsrc warn' }, '未就绪 · ' + ((kb && kb.status && kb.status.note) || '还没配置')),
         ),
         h(
           'div',
           { className: 'xm-kbline' },
-          (kb ? kb.layers : []).map(function (L) {
+          [
+            { k: 'off', t: '关闭' },
+            { k: 'local', t: '本机文件夹' },
+            { k: 'bundled', t: '随插件自带' },
+            { k: 'ima', t: 'IMA 云端' },
+          ].map(function (o) {
             return h(
               'button',
               {
-                key: L.key,
-                className: 'xm-chip' + (kblayer === L.key ? ' on' : ''),
+                key: o.k,
+                className: 'xm-chip' + (kbsrc === o.k ? ' on' : ''),
                 onClick: function () {
-                  setKblayer(L.key)
+                  saveKb({ source: o.k })
                 },
               },
-              L.label + ' ' + L.count,
+              o.t,
             )
           }),
         ),
+        kbsrc === 'local' || kbsrc === 'auto'
+          ? h(
+              'div',
+              { className: 'xm-kbsearch' },
+              h('input', {
+                className: 'xm-input',
+                value: kbdir,
+                placeholder: '本机知识库文件夹，例如 D:\\我的知识库（里面放 .md / .txt）',
+                onChange: function (e) {
+                  setKbdir(e.target.value)
+                },
+              }),
+              h(
+                'button',
+                { className: 'xm-btn', onClick: function () { saveKb({ source: kbsrc === 'auto' ? 'local' : kbsrc, dir: kbdir }) } },
+                '保存并检测',
+              ),
+            )
+          : null,
+        kbsrc === 'ima'
+          ? h(
+              'div',
+              { className: 'xm-kbsearch' },
+              h('input', {
+                className: 'xm-input',
+                value: kbima.clientId,
+                placeholder: 'IMA client_id（本机 ~/.config/ima/client_id 有的话会自动读）',
+                onChange: function (e) {
+                  setKbima(Object.assign({}, kbima, { clientId: e.target.value }))
+                },
+              }),
+              h('input', {
+                className: 'xm-input',
+                value: kbima.kbId,
+                placeholder: 'IMA 知识库 ID',
+                onChange: function (e) {
+                  setKbima(Object.assign({}, kbima, { kbId: e.target.value }))
+                },
+              }),
+              h('input', {
+                className: 'xm-input',
+                type: 'password',
+                value: kbima.apiKey,
+                placeholder: 'api_key（留空不改）',
+                onChange: function (e) {
+                  setKbima(Object.assign({}, kbima, { apiKey: e.target.value }))
+                },
+              }),
+              h(
+                'button',
+                { className: 'xm-btn', onClick: function () { saveKb({ source: 'ima', imaClientId: kbima.clientId, imaKbId: kbima.kbId, imaApiKey: kbima.apiKey }) } },
+                '保存',
+              ),
+              h('button', { className: 'xm-btn xs', onClick: testKb }, '测试连接'),
+            )
+          : null,
+        kbtest ? h('div', { className: 'xm-hint' }, kbtest) : null,
+        kb && kb.groups && kb.groups.length
+          ? h(
+              'div',
+              { className: 'xm-kbline' },
+              kb.groups.map(function (g) {
+                return h(
+                  'button',
+                  {
+                    key: g.key,
+                    className: 'xm-chip' + (kblayer === g.key ? ' on' : ''),
+                    onClick: function () {
+                      setKblayer(g.key)
+                    },
+                  },
+                  g.label + ' ' + g.docs.length,
+                )
+              }),
+            )
+          : null,
         h(
           'div',
           { className: 'xm-kbdocs' },
-          (kb && kb.layers ? (kb.layers.find(function (x) { return x.key === kblayer }) || { docs: [] }).docs : []).slice(0, 40).map(function (d) {
+          (kb && kb.groups ? (kb.groups.find(function (x) { return x.key === kblayer }) || kb.groups[0] || { docs: [] }).docs : []).slice(0, 60).map(function (d) {
             return h(
               'button',
               {
@@ -4910,52 +5082,16 @@ window.__ModuleLoader__.load({
           h('input', {
             className: 'xm-input',
             value: kbq,
-            placeholder: '搜一下：标题怎么写 / 封面点击率 / 报价异议 …',
+            placeholder: '搜一下你的资料：标题怎么写 / 封面点击率 / 报价异议 …',
             onChange: function (e) {
               setKbq(e.target.value)
             },
             onKeyDown: function (e) {
-              if (e.key !== 'Enter' || !kbq.trim()) return
-              fetch(BRIDGE_BASE + '/api/kb/search', {
-                method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({ q: kbq.trim(), limit: 8 }),
-              })
-                .then(function (r) {
-                  return r.json()
-                })
-                .then(function (j) {
-                  setKbhits(j && j.ok ? j.hits || [] : [])
-                })
-                .catch(function () {
-                  setKbhits([])
-                })
+              if (e.key !== 'Enter') return
+              searchKbNow()
             },
           }),
-          h(
-            'button',
-            {
-              className: 'xm-btn',
-              onClick: function () {
-                if (!kbq.trim()) return
-                fetch(BRIDGE_BASE + '/api/kb/search', {
-                  method: 'POST',
-                  headers: { 'content-type': 'application/json' },
-                  body: JSON.stringify({ q: kbq.trim(), limit: 8 }),
-                })
-                  .then(function (r) {
-                    return r.json()
-                  })
-                  .then(function (j) {
-                    setKbhits(j && j.ok ? j.hits || [] : [])
-                  })
-                  .catch(function () {
-                    setKbhits([])
-                  })
-              },
-            },
-            '搜索',
-          ),
+          h('button', { className: 'xm-btn', onClick: searchKbNow }, '搜索'),
         ),
         kbhits && kbhits.length
           ? h(
@@ -4981,16 +5117,16 @@ window.__ModuleLoader__.load({
                 'div',
                 { className: 'xm-kbdocbox-h' },
                 h('span', null, kbdoc.name + '（' + Math.round(kbdoc.size / 1000) + 'k 字，只显示前 6000 字）'),
-                h(
-                  'button',
-                  { className: 'xm-btn xs', onClick: function () { setKbdoc(null) } },
-                  '收起',
-                ),
+                h('button', { className: 'xm-btn xs', onClick: function () { setKbdoc(null) } }, '收起'),
               ),
               h('pre', { className: 'xm-kbdocpre' }, kbdoc.text),
             )
           : null,
-        h('div', { className: 'xm-hint' }, '这些是随插件打包的八本手册与视频解析笔记；生成时自动挑最相关的段落塞进提示词，所以在成品顶部能看到「依据」。'),
+        h(
+          'div',
+          { className: 'xm-hint' },
+          '知识库内容不在安装包 / 仓库里，只在你指定的文件夹：里面放 .md / .txt 就会被读到（可以分子文件夹）。生成时自动挑最相关的几段塞进提示词，成品顶部能看到「依据」；没配就纯靠模型自身。',
+        ),
       ),
 
       h('div', { className: 'xm-h2' }, '运行环境'),

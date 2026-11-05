@@ -1,5 +1,6 @@
 // 插件自检：在 node 里模拟 DSH 的 __ModuleLoader__，跑一遍工厂 + 五个指令生成器
 import fs from 'node:fs'
+import { mkdtemp } from 'node:fs/promises'
 
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { dirname, join } from 'node:path'
@@ -455,8 +456,8 @@ for (const s of ['一键生成', '作品库']) {
 }
 console.log('gen+works    : 一键生成 / 作品库 / 落库接口 ok')
 
-/* 方法论回归：回答体系必须由 IMA「人类最强编导」那套框架撑着，不能被改回泛泛的爆款话术 */
-for (const s of ['爆款四必要条件', '三种内容路径', '用户任务', '证据纪律', '万古同悲', '打破节奏']) {
+/* 方法论回归：回答体系必须有可复用的判断框架，不能被改回泛泛的爆款话术；框架名不绑定任何课程 */
+for (const s of ['爆款四必要条件', '三种内容路径', '用户任务', '证据纪律', '情感共鸣', '反差节奏']) {
   if (textSrc.indexOf(s) < 0) throw new Error('text.mjs 的 SYSTEM 缺方法论: ' + s)
 }
 for (const s of ['用户任务与需求层级', '爆款四必要条件诊断', '内容路径归属', '系列承接', 'necessities']) {
@@ -522,13 +523,14 @@ console.log('hot/accounts : 热榜 + 我的账号 + 找博主 + 桥路由 ok')
 
 /* 多账号 / 知识库可视化 / 本地上传去重 / 后台 AI 分析 */
 const backendSrc = fs.readFileSync(new URL('../bridge/backend.mjs', import.meta.url), 'utf8')
-for (const s of ['createStore', 'parseCsv', 'normalizeRow', 'signatureOf', 'kbCatalog', 'kbDoc', 'searchKb']) {
+for (const s of ['createStore', 'parseCsv', 'normalizeRow', 'signatureOf']) {
   if (backendSrc.indexOf(s) < 0) throw new Error('backend.mjs 缺: ' + s)
 }
-for (const s of ["'/api/account/list'", "'/api/kb/catalog'", "'/api/kb/search'", "'/api/kb/doc'", "'/api/backend/upload'", "'/api/backend/uploads'"]) {
+if (/kbCatalog|kbDoc|searchKb/.test(backendSrc)) throw new Error('backend.mjs 不该再管知识库（已搬到 kbstore.mjs）')
+for (const s of ["'/api/account/list'", "'/api/kb/catalog'", "'/api/kb/search'", "'/api/kb/doc'", "'/api/kb/settings'", "'/api/kb/test'", "'/api/backend/upload'", "'/api/backend/uploads'"]) {
   if (serverSrcS.indexOf(s) < 0) throw new Error('server.mjs 缺路由: ' + s)
 }
-for (const s of ['function buildBackendAnalyze', '方法论口径', 'Dan Koe', '上传文件', 'AI 分析', 'xm-kbcard', '本机知识库', 'xm-kbdocpre']) {
+for (const s of ['function buildBackendAnalyze', '方法论口径', 'Dan Koe', '上传文件', 'AI 分析', 'xm-kbcard', '知识库来源', 'xm-kbdocpre']) {
   if (src.indexOf(s) < 0) throw new Error('client.js 缺: ' + s)
 }
 if (typeof globalThis.__debao.buildBackendAnalyze !== 'function') throw new Error('buildBackendAnalyze 没导出')
@@ -757,6 +759,47 @@ console.log('douyin board : item/list metrics / 数据中心总览 / 粉丝画�
   assert(!st.list({}).items.some((x) => x.id === one.id), '重新同步不该让删掉的行复活')
   fs.rmSync(tmp, { recursive: true, force: true })
   console.log('study library: 学习库同步 / 去重 / 标签备注 / 增删 / 黑名单 ok')
+}
+
+/* 知识库：来源可配（关闭 / 本机文件夹 / 自带 / IMA），语料不进安装包 */
+{
+  const { kbCatalog, searchKb, kbStatus, kbDoc } = await import(pathToFileURL(join(ROOT, 'bridge', 'kbstore.mjs')).href)
+  const tmpKb = await mkdtemp(join(os.tmpdir(), 'debao-kb-'))
+  fs.mkdirSync(join(tmpKb, '摄影'), { recursive: true })
+  fs.writeFileSync(join(tmpKb, '摄影', '标题.md'), '# 标题怎么写\n\n## 封面点击率\n封面三行字就够，主体占三分之二。\n', 'utf8')
+  fs.writeFileSync(join(tmpKb, '报价.md'), '# 报价怎么谈\n\n先问预算，再给区间，不要一上来报低价。\n', 'utf8')
+
+  const off = kbStatus({ kb: { source: 'off' } })
+  assert(off.ready === false && /关闭/.test(off.note), '选择关闭时不该当成就绪')
+
+  const cat = kbCatalog({ kb: { source: 'local', dir: tmpKb } }, '')
+  assert(cat.total === 2, '本机文件夹应扫到 2 篇，实际 ' + cat.total)
+  assert(cat.groups.some((g) => g.key === '摄影'), '子文件夹要当成分组')
+
+  const hit = await searchKb({ kb: { source: 'local', dir: tmpKb } }, '封面点击率 标题', 3, '')
+  assert(hit.hits.length > 0, '本机知识库要能按关键词命中')
+  assert(/封面|标题/.test(hit.hits[0].doc + hit.hits[0].snippet), '命中的应该是标题那篇')
+
+  const doc = kbDoc({ kb: { source: 'local', dir: tmpKb } }, 'file:' + join('摄影', '标题.md').split('\\').join('/'), 4000, '')
+  assert(doc && /封面三行字/.test(doc.text), '点开单篇要能读到正文')
+
+  const none = await searchKb({ kb: { source: 'local', dir: '' } }, '标题', 3, '')
+  assert(!none.hits.length, '没配文件夹时要安静返回空，不能报错')
+
+  fs.rmSync(tmpKb, { recursive: true, force: true })
+
+  const kbSrc = fs.readFileSync(join(ROOT, 'bridge', 'kbstore.mjs'), 'utf8')
+  for (const k of ['kbBlock', 'kbStatus', 'kbCatalog', 'searchKb', 'ima-openapi-clientid']) {
+    assert(kbSrc.indexOf(k) >= 0, 'kbstore.mjs 缺: ' + k)
+  }
+  for (const k of ["'/api/kb/settings'", "'/api/kb/test'"]) {
+    assert(serverSrc.indexOf(k) >= 0, 'server.mjs 缺: ' + k)
+  }
+  assert(!fs.existsSync(join(ROOT, 'bridge', 'kb', 'kb.js')), '课程语料索引不该再随插件走')
+  const pkg = JSON.parse(fs.readFileSync(join(ROOT, 'package.json'), 'utf8'))
+  assert(!(pkg.files || []).includes('kb/'), 'package.json 不该把语料目录打进安装包')
+  assert((pkg.files || []).includes('bridge/kbstore.mjs'), 'package.json 要带上 kbstore.mjs')
+  console.log('kb sources   : 关闭 / 本机文件夹 / 分组 / 切段 / 检索 / 不进包 ok')
 }
 
 console.log('\nALL CHECKS PASSED')

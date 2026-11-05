@@ -17,7 +17,8 @@ import { runAnalysis, keyStatus as analyzeKeyStatus, framesDir } from './analyze
 import { generateStream, textProvider, TEXT_MODEL } from './text.mjs'
 import { hotBoard, keywordBoard, searchUsers, userProfile } from './social.mjs'
 import { summarizeAccount } from './account.mjs'
-import { createStore as createBackendStore, parseCsv, parseXlsx, normalizeRow, signatureOf, kbCatalog, kbDoc, searchKb } from './backend.mjs'
+import { createStore as createBackendStore, parseCsv, parseXlsx, normalizeRow, signatureOf, PLUGIN_DIR } from './backend.mjs'
+import { kbCatalog, kbDoc, searchKb, kbStatus } from './kbstore.mjs'
 import { createStudy } from './study.mjs'
 import {
   keyInfo as tkKeyInfo,
@@ -53,7 +54,8 @@ const backendStore = createBackendStore(DATA_DIR)
 const study = createStudy(DATA_DIR)
 let accountCache = null /* /api/account/summary 按 updatedAt 缓存，避免每次重解析几百 KB */
 const MAX_INSP = 800
-const VERSION = '2.7.0'
+const VERSION = '2.8.0'
+const KB_ROOT = path.join(PLUGIN_DIR, 'kb')
 
 fs.mkdirSync(DATA_DIR, { recursive: true })
 
@@ -776,10 +778,62 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, Object.assign({ ok: true, accounts: backendStore.list(one.platform) }, one))
     }
 
-    /* ---- 知识库可视化：目录 / 搜索 / 读单篇 ---- */
+    /* ---- 知识库：来源设置 / 目录 / 搜索 / 读单篇 ---- */
+    if (method === 'GET' && p === '/api/kb/settings') {
+      const st = readJSON(SETTINGS_FILE, {}) || {}
+      const kb = st.kb || {}
+      const ima = kb.ima || {}
+      return send(res, 200, {
+        ok: true,
+        source: kb.source || 'auto',
+        dir: kb.dir || '',
+        ima: {
+          clientId: ima.clientId || '',
+          kbId: ima.kbId || '',
+          hasKey: !!ima.apiKey,
+        },
+        status: kbStatus(st),
+        bundledRoot: KB_ROOT,
+        version: VERSION,
+      })
+    }
+
+    if (method === 'POST' && p === '/api/kb/settings') {
+      const body = await readBody(req)
+      const st = readJSON(SETTINGS_FILE, {}) || {}
+      const kb = Object.assign({}, st.kb || {})
+      if (body && body.source) kb.source = String(body.source)
+      if (body && body.dir !== undefined) kb.dir = String(body.dir || '')
+      if (body && (body.imaClientId !== undefined || body.imaApiKey !== undefined || body.imaKbId !== undefined)) {
+        const ima = Object.assign({}, kb.ima || {})
+        if (body.imaClientId !== undefined) ima.clientId = String(body.imaClientId || '').trim()
+        if (body.imaKbId !== undefined) ima.kbId = String(body.imaKbId || '').trim()
+        if (body.imaApiKey) ima.apiKey = String(body.imaApiKey).trim()
+        if (body.clearImaKey) delete ima.apiKey
+        kb.ima = ima
+      }
+      st.kb = kb
+      writeJSON(SETTINGS_FILE, st)
+      return send(res, 200, { ok: true, status: kbStatus(st) })
+    }
+
+    if (method === 'POST' && p === '/api/kb/test') {
+      const body = await readBody(req)
+      const st = readJSON(SETTINGS_FILE, {}) || {}
+      const kbCfg = { kb: Object.assign({}, st.kb || {}, body || {}) }
+      if (body && body.dir !== undefined) kbCfg.kb.dir = String(body.dir || '')
+      const cat = kbCatalog(kbCfg, KB_ROOT)
+      if ((kbCfg.kb.source || 'auto') === 'ima') {
+        const r = await searchKb(kbCfg, (body && body.q) || '拍摄', 3, KB_ROOT)
+        return send(res, 200, { ok: true, source: 'ima', total: cat.total, probe: r.hits ? r.hits.length : 0, note: cat.note, error: r.error || '' })
+      }
+      return send(res, 200, { ok: true, source: cat.source, total: cat.total, root: cat.root, note: cat.note, groups: cat.groups.map((g) => g.label + ':' + g.docs.length) })
+    }
+
     if (method === 'GET' && p === '/api/kb/catalog') {
       try {
-        return send(res, 200, Object.assign({ ok: true }, kbCatalog()))
+        const st = readJSON(SETTINGS_FILE, {}) || {}
+        return send(res, 200, Object.assign({ ok: true }, kbCatalog(st, KB_ROOT), { status: kbStatus(st) }))
       } catch (e) {
         return send(res, 500, { ok: false, error: '读知识库目录失败：' + e.message })
       }
@@ -787,12 +841,14 @@ const server = http.createServer(async (req, res) => {
 
     if (method === 'POST' && p === '/api/kb/search') {
       const body = await readBody(req)
-      const r = searchKb((body && body.q) || '', (body && body.limit) || 8)
+      const st = readJSON(SETTINGS_FILE, {}) || {}
+      const r = await searchKb(st, (body && body.q) || '', (body && body.limit) || 8, KB_ROOT)
       return send(res, 200, Object.assign({ ok: true }, r))
     }
 
     if (method === 'GET' && p === '/api/kb/doc') {
-      const doc = kbDoc(u.searchParams.get('ref') || '', Number(u.searchParams.get('limit')) || 24000)
+      const st = readJSON(SETTINGS_FILE, {}) || {}
+      const doc = kbDoc(st, u.searchParams.get('ref') || '', Number(u.searchParams.get('limit')) || 24000, KB_ROOT)
       if (!doc) return send(res, 404, { ok: false, error: '没有这篇' })
       return send(res, 200, Object.assign({ ok: true }, doc))
     }
@@ -1054,6 +1110,9 @@ const server = http.createServer(async (req, res) => {
           temperature: Number.isFinite(Number(b.temperature)) ? Number(b.temperature) : 0.7,
           // 设置里可以关掉「生成前检索知识库」
           noKb: b.kb === false,
+          // 知识库：来源与文件夹在「设置 → 知识库」里配，没配就跳过
+          kbCfg: (readJSON(SETTINGS_FILE, {}) || {}).kb || {},
+          kbRoot: KB_ROOT,
           // 插件界面会把自身 origin 带上来，桥用它去调 DSH 环境内的模型（不用 key）
           hostBase: String(b.hostBase || ''),
         },

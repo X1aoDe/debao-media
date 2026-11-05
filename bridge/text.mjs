@@ -7,20 +7,10 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { resolveKey as resolveArkKey } from './analyze.mjs'
-/* 本机「自媒体知识库」（plugins/zimeiti-kb）：每次生成前按简报检索 3 段方法论拼进 system。
-   桌面版里知识库被复制到 plugin/bridge/kb，所以两条路都试；都没有就自动降级（不影响生成）。 */
-let kbSearch = null
-for (const rel of ['../../zimeiti-kb/kb.js', './kb/kb.js']) {
-  try {
-    const mod = await import(new URL(rel, import.meta.url).href)
-    if (typeof mod.search === 'function') {
-      kbSearch = mod.search
-      break
-    }
-  } catch {
-    /* 换下一条 */
-  }
-}
+import { kbBlock } from './kbstore.mjs'
+
+/* 知识库：语料不进仓库也不进安装包，由用户在「设置 → 知识库」里指一个本机文件夹，
+   或者接云端 IMA。这里每轮生成前按简报检索几段，拼进 system；没配就自动跳过。 */
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const DS_KEY_FILE = process.env.DEBAO_DATA_DIR
@@ -154,18 +144,18 @@ export function textProvider() {
 }
 
 const SYSTEM = [
-  '你是德饱的资深内容编导，服务一个中文自媒体创作者（小红书 + 抖音，摄影师 / 摄影教学方向）。',
+  '你是一名资深内容编导，服务一个中文自媒体创作者（小红书 + 抖音，摄影师 / 摄影教学方向）。',
   '',
-  '你的判断必须走下面这套方法论（来自 IMA 知识库「人类最强编导」课程体系 + 本机自媒体知识库），不要用泛泛的"爆款技巧"：',
+  '你的判断必须走下面这套方法论（通用内容方法 + 你自己知识库里放着的资料），不要用泛泛的"爆款技巧"：',
   '',
   '【A 三条命题】内容是用户任务的解法；自媒体是"他媒体"，从用户任务出发而不是从表达欲出发；视频是产品，要有用户、需求、形式、交付、反馈闭环。',
   '',
   '【B 爆款四必要条件】低理解成本、大群体链接、满足核心需求（情绪或信息）、产生互动动机。判断时逐条给「成立 / 偏弱 / 不成立」并说证据，不要一律打高分。',
   '',
   '【C 三种内容路径】',
-  '- 万古同悲：调用共享情感记忆。脚本＝具体场景→说不出口的感受→共同处境→意义转折→行动出口。强度来自准确命名，不来自煽情词。',
-  '- 惊世骇俗：稀缺硬素材（事件本身的规模、风险、反常）。靠证据和边界立住，不夸大。',
-  '- 打破节奏：快中慢 / 繁中简 / 闹中静。一次只选一个反差维度，而且必须服务信息；形式差异不能掩盖价值不足。',
+  '- 情感共鸣：调用共享情感记忆。脚本＝具体场景→说不出口的感受→共同处境→意义转折→行动出口。强度来自准确命名，不来自煽情词。',
+  '- 稀缺视角：稀缺硬素材（事件本身的规模、风险、反常）。靠证据和边界立住，不夸大。',
+  '- 反差节奏：快中慢 / 繁中简 / 闹中静。一次只选一个反差维度，而且必须服务信息；形式差异不能掩盖价值不足。',
   '',
   '【D 选题公式】用户任务 ∩ 自身资源 ∩ 平台消费场景 ∩ 可持续供给。用户任务要写成：当【情境】时，【谁】想从【原状态】到【目标状态】，但被【阻碍】卡住。',
   '',
@@ -185,31 +175,26 @@ function headers(key) {
   return { 'content-type': 'application/json', authorization: 'Bearer ' + key }
 }
 
-/* 从知识库检索与本次简报最相关的 3 段方法论。 */
-function kbParts(prompt, limit = 3, noKb = false) {
-  if (noKb || process.env.DEBAO_KB === '0' || !kbSearch) return { block: '', hits: [] }
+/* 从用户自己的知识库里检索与本次简报最相关的几段。没配知识库就安静跳过。 */
+async function kbParts(prompt, opt = {}) {
+  if (opt.noKb || process.env.DEBAO_KB === '0') return { block: '', hits: [] }
   try {
     const q = String(prompt || '').replace(/\s+/g, ' ').slice(0, 320)
     if (!q.trim()) return { block: '', hits: [] }
-    const { hits } = kbSearch(q, { corpus: 'playbook', limit })
-    if (!hits.length) return { block: '', hits: [] }
-    const blockBody = hits
-      .map((h) => `- 【${h.doc}${h.section ? ' › ' + h.section : ''}】${h.snippet}`)
-      .join('\n')
+    const cfg = { kb: opt.kbCfg || {} }
+    const r = await kbBlock(cfg, q, Number(opt.kbLimit) || 3, opt.kbRoot || '')
     return {
-      block:
-        '\n\n【本机知识库检索到的相关方法论（从过往课程蒸馏，结构与口径优先照它写；与上文冲突时以上文为准）】\n' +
-        blockBody,
-      hits: hits.map((h) => ({
-        file: String(h.ref || '').split(':').slice(1).join(':').replace(/\.md$/, ''),
+      block: r.block,
+      hits: (r.hits || []).map((h) => ({
+        file: String(h.ref || '').replace(/^file:/, ''),
         doc: h.doc,
         section: h.section || '',
         snippet: String(h.snippet || '').slice(0, 160),
         score: h.score || 0,
       })),
     }
-  } catch {
-    return { block: '', hits: [] }
+  } catch (e) {
+    return { block: '', hits: [], note: e.message }
   }
 }
 
@@ -246,7 +231,7 @@ function errHint(provider, status, model) {
 
 /* 一次性返回 */
 export async function generate(prompt, opt = {}) {
-  const kb = kbParts(prompt, opt.kbLimit || 3, !!opt.noKb)
+  const kb = await kbParts(prompt, opt)
   /* 优先用 DSH 环境内的模型（插件 host 半 /debao/gen），不需要任何 key */
   const base = hostBaseOf(opt)
   if (base && (await hostAlive(base))) {
@@ -292,7 +277,7 @@ export async function generate(prompt, opt = {}) {
 
 /* 流式：每来一段增量调 onDelta(delta, fullText) */
 export async function generateStream(prompt, opt = {}, onDelta) {
-  const kb = kbParts(prompt, opt.kbLimit || 3, !!opt.noKb)
+  const kb = await kbParts(prompt, opt)
   const base = hostBaseOf(opt)
   if (base && (await hostAlive(base))) {
     const r = await hostGenerate(base, prompt, opt, kb.block, onDelta)

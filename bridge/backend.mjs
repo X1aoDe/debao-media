@@ -11,13 +11,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url))
 export const PLUGIN_DIR = path.resolve(HERE, '..')
 export const KB_DIR = path.join(PLUGIN_DIR, 'kb')
 
-let kbSearch = null
-try {
-  const mod = await import(new URL('./kb/kb.js', import.meta.url))
-  kbSearch = mod.default || mod.search || null
-} catch (e) {
-  kbSearch = null
-}
+
 
 function readJSON(file, fallback) {
   try {
@@ -530,80 +524,4 @@ export function normalizeRow(row) {
 export function signatureOf(r) {
   const base = r.id ? 'id:' + r.id : 'k:' + (r.title || '').slice(0, 60) + '|' + (r.time || '') + '|' + r.play
   return crypto.createHash('sha1').update(base).digest('hex').slice(0, 16)
-}
-
-/* ---------------- 知识库可视化 ---------------- */
-
-const LAYERS = [
-  { key: 'distilled', label: '蒸馏手册', dir: 'distilled' },
-  { key: 'videos', label: '视频解析', dir: 'videos' },
-  { key: 'raw', label: '原始课件', dir: 'raw' },
-]
-
-function headingsOf(text, max) {
-  const out = []
-  const re = /^#{1,3}\s+(.+)$/gm
-  let m
-  while ((m = re.exec(text)) && out.length < (max || 6)) out.push(m[1].trim())
-  return out
-}
-
-export function kbCatalog() {
-  const layers = []
-  for (const L of LAYERS) {
-    const dir = path.join(KB_DIR, L.dir)
-    let names = []
-    try {
-      names = fs.readdirSync(dir).filter((f) => f.endsWith('.md'))
-    } catch (e) {
-      names = []
-    }
-    const docs = names.map((f) => {
-      const full = path.join(dir, f)
-      let size = 0
-      let heads = []
-      try {
-        const st = fs.statSync(full)
-        size = st.size
-        const text = fs.readFileSync(full, 'utf8').slice(0, 20000)
-        heads = headingsOf(text, 5)
-      } catch (e) {
-        /* 忽略单个坏文件 */
-      }
-      return { ref: L.key + ':' + f, name: f.replace(/\.md$/, ''), size, headings: heads }
-    })
-    layers.push({ key: L.key, label: L.label, count: docs.length, docs })
-  }
-  return { root: KB_DIR, layers, total: layers.reduce((a, l) => a + l.count, 0), search: !!kbSearch }
-}
-
-export function kbDoc(ref, limit) {
-  const s = String(ref || '')
-  const i = s.indexOf(':')
-  if (i < 0) return null
-  const layer = s.slice(0, i)
-  const file = s.slice(i + 1)
-  const L = LAYERS.find((x) => x.key === layer)
-  if (!L || file.includes('..') || file.includes('/') || file.includes('\\')) return null
-  const full = path.join(KB_DIR, L.dir, file)
-  if (!fs.existsSync(full)) return null
-  const text = fs.readFileSync(full, 'utf8')
-  return { ref: s, name: file.replace(/\.md$/, ''), layer, size: text.length, text: text.slice(0, limit || 24000) }
-}
-
-export function searchKb(query, limit) {
-  if (!kbSearch) return { hits: [], error: '知识库检索模块没加载' }
-  try {
-    const raw = kbSearch(String(query || ''), { limit: limit || 8 })
-    const hits = (Array.isArray(raw) ? raw : (raw && raw.hits) || []).map((h) => ({
-      ref: h.ref || '',
-      doc: h.doc || h.title || '',
-      section: h.section || '',
-      snippet: String(h.snippet || h.text || '').slice(0, 240),
-      score: Math.round(Number(h.score) || 0),
-    }))
-    return { hits, total: hits.length }
-  } catch (e) {
-    return { hits: [], error: '检索失败：' + e.message }
-  }
 }

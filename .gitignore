@@ -6,7 +6,7 @@ data/
 *.log
 
 # 知识库语料（版权原因不入库；放自己的 md 时也别提交）
-kb/
+/kb/
 !bridge/kb/kb.js
 
 # 依赖与构建产物

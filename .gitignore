@@ -1,0 +1,28 @@
+# 本机数据：采集库、解析结果、账号、上传文件、视频缓存 —— 绝对不要进仓库
+bridge/data/
+bridge/*.key
+data/
+*.key
+*.log
+
+# 知识库语料（版权原因不入库；放自己的 md 时也别提交）
+kb/
+!bridge/kb/kb.js
+
+# 依赖与构建产物
+node_modules/
+dist/
+release/
+*.tgz
+*.zip
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 临时
+*.tmp
+*.part

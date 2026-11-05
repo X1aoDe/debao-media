@@ -1,0 +1,3 @@
+- insert:
+    - id: debao-media
+      name: '@local/debao-media'

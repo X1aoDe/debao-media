@@ -1,0 +1,51 @@
+{
+  "name": "@local/debao-media",
+  "version": "1.0.9",
+  "private": true,
+  "type": "module",
+  "description": "德饱自媒体助手：采集 / 拆解 / 仿写 / 原创 / 选题 / 视频解析 / 热榜 / 博主 / 账号学习，左边一栏全干完。",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./bridge/server.mjs": "./bridge/server.mjs",
+    "./bridge/extension/manifest.json": "./bridge/extension/manifest.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "bridge/server.mjs",
+    "bridge/analyze.mjs",
+    "bridge/text.mjs",
+    "bridge/social.mjs",
+    "bridge/tikhub.mjs",
+    "bridge/learn.mjs",
+    "bridge/account.mjs",
+    "bridge/fetch-media.mjs",
+    "bridge/start-bridge.bat",
+    "bridge/start-bridge-silent.vbs",
+    "bridge/watchdog.vbs",
+    "bridge/extension/",
+    "bridge/kb/",
+    "kb/",
+    "scripts/sync-locale.mjs",
+    "scripts/self-check.mjs",
+    "安装说明.md",
+    "bridge/*.mjs",
+    "scripts/"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
+    }
+  }
+}

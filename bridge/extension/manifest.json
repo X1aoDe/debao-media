@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "采集到我的自媒体库",
+  "version": "2.6.0",
+  "description": "把小红书 / 抖音的笔记和创作者后台数据采集到本机自媒体库；视频会直接存到你本机，短视频抽帧、长视频整段交给模型看。",
+  "permissions": ["activeTab", "storage", "webRequest"],
+  "host_permissions": [
+    "*://*.xiaohongshu.com/*",
+    "*://*.xhscdn.com/*",
+    "*://*.douyin.com/*",
+    "*://*.douyinvod.com/*",
+    "*://*.bytecdn.com/*",
+    "*://*.bytecdntp.com/*",
+    "*://*.zjcdn.com/*",
+    "http://127.0.0.1:53210/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.xiaohongshu.com/*", "*://*.douyin.com/*"],
+      "js": ["inject.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["*://*.xiaohongshu.com/*", "*://*.douyin.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "采集到我的自媒体库"
+  }
+}
